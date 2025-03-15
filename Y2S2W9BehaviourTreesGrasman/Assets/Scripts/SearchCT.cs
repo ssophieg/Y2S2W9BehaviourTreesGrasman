@@ -9,9 +9,11 @@ namespace NodeCanvas.Tasks.Conditions {
 
 		public GameObject fruitPrefab;
 		Vector3 fruitSpawnPosition;
+
 		public float baseSearchRadius;
 		float currentSearchRadius;
 		public float radiusIncrease;
+
 		public BBParameter<Vector3> currentFruitPosition;
 
 		public BBParameter<GameObject> currentFruit;
@@ -20,6 +22,8 @@ namespace NodeCanvas.Tasks.Conditions {
 		//Use for initialization. This is called only once in the lifetime of the task.
 		//Return null if init was successfull. Return an error string otherwise
 		protected override string OnInit(){
+
+			//spawn a fruit in a random position
             currentSearchRadius = baseSearchRadius;
             fruitSpawnPosition = new Vector3(Random.Range(6.95f, -6.87f), 0.16f, Random.Range(9.08f, -9.04f));
             GameObject.Instantiate(fruitPrefab, fruitSpawnPosition, Quaternion.identity);
@@ -39,9 +43,10 @@ namespace NodeCanvas.Tasks.Conditions {
 		//Return whether the condition is success or failure.
 		protected override bool OnCheck() {
 
+
             Collider[] fruitsFound = Physics.OverlapSphere(agent.transform.position, currentSearchRadius, fruitLayerMask);
 
-            //store rodent location and object when rodent is found
+            //store fruit object when fruit is found
             foreach (Collider fruitCollider in fruitsFound)
             {
                 currentFruit.value = fruitCollider.gameObject;
@@ -49,6 +54,7 @@ namespace NodeCanvas.Tasks.Conditions {
 
             currentFruitPosition.value = fruitSpawnPosition;
 
+			//spawn another fruit upon finding a fruit
             if (Vector3.Distance(fruitSpawnPosition, agent.transform.position) <= currentSearchRadius)
 			{
                 currentSearchRadius = baseSearchRadius;
@@ -58,6 +64,7 @@ namespace NodeCanvas.Tasks.Conditions {
 				return true;
 			}
 
+			//increase search radius every frame
 			currentSearchRadius += radiusIncrease * Time.deltaTime;
 			return false;
 		}
